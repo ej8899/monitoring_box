@@ -16,11 +16,19 @@ The **Monitoring Box** is a small, hardened Linux device that sits on a client�
 - Unusual network activity or unexpected open ports
 - Historical uptime & availability for compliance reporting
 
-It’s based on:
+**Hardware:**  
+- Typically built on a **compact, energy-efficient mini PC**.  
+- Specs are modest (2–4 cores, 8GB+ RAM, SSD), but provide plenty of headroom for proactive monitoring tasks.  
+- We can deploy on nearly any modern mini system — it doesn’t require specialized or expensive proprietary hardware.
 
-- **Ubuntu Server 24.04.2 LTS**, regularly updated with automatic security patches
-- Our own stack of lightweight agents and custom scripts, written in **Bash, Python, and NodeJS**
-- Secure outbound connections only — using encrypted tunnels — so there are no risky inbound firewall rules
+👉 [Browse typical mini PCs on Amazon](https://amzn.to/44Kq2xD)
+
+**Software stack:**  
+- Ubuntu Server 24.04.2 LTS (hardened & auto-updated for security)
+- Our own Bash, Python, and NodeJS scripts to handle network scans, checks, reporting, and secure outbound connectivity.
+
+All monitoring is performed securely, with **no access to your business files or private data** — strictly infrastructure & network health.
+
 
 ---
 
