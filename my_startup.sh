@@ -35,8 +35,8 @@ function gradient_line {
 
 function gradient_line_green {
     local text="$1"
-    local start_color=(0 255 0)   # Bright green
-    local end_color=(0 128 0)     # Dark green
+    local start_color=(0 255 0)
+    local end_color=(0 128 0)
     local steps=${#text}
 
     for ((i = 0; i < steps; i++)); do
