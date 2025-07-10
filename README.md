@@ -27,8 +27,11 @@ The **Monitoring Box** is a small, hardened Linux device that sits on a client�
 - Ubuntu Server 24.04.2 LTS (hardened & auto-updated for security)
 - Our own Bash, Python, and NodeJS scripts to handle network scans, checks, reporting, and secure outbound connectivity.
 
-All monitoring is performed securely, with **no access to your business files or private data** — strictly infrastructure & network health.
-
+**Architecture:**  
+- These devices act strictly as **reporting nodes**.  
+- They gather network health, device status, and scan data, then securely send it back to our central servers.
+- Our core platform (running our own custom code and configurations) performs the heavy analysis, trend reporting, and advanced alerting.
+- This ensures your network remains private — with no sensitive business files or content ever touched.
 
 ---
 
