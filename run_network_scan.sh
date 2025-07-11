@@ -30,21 +30,22 @@ echo "EJMedia Network Scan Summary - ${DATE}" >> ${OUTPUT_TXT}
 echo "==================================================" >> ${OUTPUT_TXT}
 echo "" >> ${OUTPUT_TXT}
 
-# Use xmlstarlet (small tool to parse XML cleanly)
+# Ensure xmlstarlet is installed
 which xmlstarlet > /dev/null 2>&1 || sudo apt install -y xmlstarlet
 
-# Loop through hosts
-xmlstarlet sel -t -m "//host" -v "address[@addrtype='ipv4']/@addr" -o " " \
-    -v "hostnames/hostname/@name" -n ${OUTPUT_XML} | while read line; do
-    IP=$(echo $line | awk '{print $1}')
-    HOSTNAME=$(echo $line | awk '{print $2}')
-    PORTS=$(xmlstarlet sel -t -m "//host[address/@addr='${IP}']/ports/port[state/@state='open']" -v "@portid" -o " (" -v "service/@name" -o "), " ${OUTPUT_XML} | sed 's/, $//')
+# Loop through each host found in the scan
+for IP in $(xmlstarlet sel -t -m "//host" -v "address[@addrtype='ipv4']/@addr" -n ${OUTPUT_XML}); do
+    HOSTNAME=$(xmlstarlet sel -t -m "//host[address/@addr='${IP}']/hostnames/hostname" -v "@name" -n ${OUTPUT_XML})
+    PORTS=$(xmlstarlet sel -t -m "//host[address/@addr='${IP}']/ports/port[state/@state='open']" \
+        -v "concat(@portid, ' (', service/@name, '), ')" ${OUTPUT_XML} | sed 's/, $//')
 
-    if [ ! -z "$PORTS" ]; then
-        echo "HOST: $IP ${HOSTNAME}" >> ${OUTPUT_TXT}
+    echo "HOST: $IP ${HOSTNAME}" >> ${OUTPUT_TXT}
+    if [ -n "$PORTS" ]; then
         echo "  - Open ports: $PORTS" >> ${OUTPUT_TXT}
-        echo "" >> ${OUTPUT_TXT}
+    else
+        echo "  - No open ports found (all filtered or closed)" >> ${OUTPUT_TXT}
     fi
+    echo "" >> ${OUTPUT_TXT}
 done
 
 echo ">>> Summary saved to ${OUTPUT_TXT}"
