@@ -1,7 +1,7 @@
 #!/bin/bash
 # ---------------------------------------------------
 # run_network_scan.sh
-# EJMedia monitoring box nmap wrapper
+# EJMedia.ca monitoring box nmap wrapper with human summary
 # ---------------------------------------------------
 # Usage: sudo bash run_network_scan.sh
 
@@ -19,17 +19,34 @@ echo ">>> Performing pre-scan cleanup..."
 rm -f ${OUTPUT_XML} ${OUTPUT_TXT}
 
 echo ""
-echo ">>> Starting nmap scan..."
+echo ">>> Starting nmap scan (timeout 2 min per host)..."
 sudo nmap -sV -p1-1000 -v --host-timeout 2m 192.168.1.0/24 -oX ${OUTPUT_XML}
 
 echo ""
-echo ">>> Scan completed. Generating summary..."
+echo ">>> Scan completed. Generating readable summary..."
 
-# Simple grep summary of live hosts & open ports
-sudo nmap -sP 192.168.1.0/24 | grep "Nmap scan report for" > ${OUTPUT_TXT}
+# Build a helpful summary file
+echo "EJMedia Network Scan Summary - ${DATE}" >> ${OUTPUT_TXT}
+echo "==================================================" >> ${OUTPUT_TXT}
+echo "" >> ${OUTPUT_TXT}
 
-echo ""
-echo ">>> Summary of discovered hosts written to ${OUTPUT_TXT}"
-echo ">>> Full XML report saved to ${OUTPUT_XML}"
+# Use xmlstarlet (small tool to parse XML cleanly)
+which xmlstarlet > /dev/null 2>&1 || sudo apt install -y xmlstarlet
+
+# Loop through hosts
+xmlstarlet sel -t -m "//host" -v "address[@addrtype='ipv4']/@addr" -o " " \
+    -v "hostnames/hostname/@name" -n ${OUTPUT_XML} | while read line; do
+    IP=$(echo $line | awk '{print $1}')
+    HOSTNAME=$(echo $line | awk '{print $2}')
+    PORTS=$(xmlstarlet sel -t -m "//host[address/@addr='${IP}']/ports/port[state/@state='open']" -v "@portid" -o " (" -v "service/@name" -o "), " ${OUTPUT_XML} | sed 's/, $//')
+
+    if [ ! -z "$PORTS" ]; then
+        echo "HOST: $IP ${HOSTNAME}" >> ${OUTPUT_TXT}
+        echo "  - Open ports: $PORTS" >> ${OUTPUT_TXT}
+        echo "" >> ${OUTPUT_TXT}
+    fi
+done
+
+echo ">>> Summary saved to ${OUTPUT_TXT}"
 echo ""
 echo "Done!"
