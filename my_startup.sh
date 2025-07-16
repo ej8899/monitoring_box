@@ -1,14 +1,9 @@
 #!/bin/bash
 
-
 # ------------------------------------------------------------------------
 # This script is placed in /etc/profile.d/
-# Any executable .sh file in /etc/profile.d/ is automatically sourced
-# by /etc/profile for all users on login or when a new shell session starts.
-#
-# That means this script will run on every local console login or SSH connection.
+# Automatically sourced on login/ssh for all users
 # ------------------------------------------------------------------------
-
 
 # Clear the terminal
 clear
@@ -20,16 +15,11 @@ function gradient_line {
     local steps=${#text}
 
     for ((i = 0; i < steps; i++)); do
-        # Calculate interpolated color
         local r=$((start_color[0] + (end_color[0] - start_color[0]) * i / steps))
         local g=$((start_color[1] + (end_color[1] - start_color[1]) * i / steps))
         local b=$((start_color[2] + (end_color[2] - start_color[2]) * i / steps))
-
-        # Print character with calculated color
         printf "\033[38;2;%d;%d;%dm%s" "$r" "$g" "$b" "${text:i:1}"
     done
-
-    # Reset color
     printf "\033[0m\n"
 }
 
@@ -40,21 +30,17 @@ function gradient_line_green {
     local steps=${#text}
 
     for ((i = 0; i < steps; i++)); do
-        # Calculate interpolated color
         local r=$((start_color[0] + (end_color[0] - start_color[0]) * i / steps))
         local g=$((start_color[1] + (end_color[1] - start_color[1]) * i / steps))
         local b=$((start_color[2] + (end_color[2] - start_color[2]) * i / steps))
-
-        # Print character with calculated color
         printf "\033[38;2;%d;%d;%dm%s" "$r" "$g" "$b" "${text:i:1}"
     done
-
-    # Reset color
     printf "\033[0m\n"
 }
 
-
-# Render gradient ASCII art
+# -------------------------
+# Render Banner
+# -------------------------
 gradient_line "···················································"
 gradient_line ":       _                    _ _                  :"
 gradient_line ":  ___ (_)_ __ ___   ___  __| (_) __ _   ___ __ _ :"
@@ -64,13 +50,41 @@ gradient_line ": \\___|/ |_| |_| |_|\\___|\\__,_|_|\\__,_(_)___\\__,_|:"
 gradient_line ":    |__/                                         :"
 gradient_line "···················································"
 
-# System Information Section
-gradient_line_green "======================================================"
-echo -e "\033[36mWelcome to \033[0m$(hostname)\033[0m"
-echo -e "\033[34mCurrent User: \033[0m$(whoami)"
-echo -e "\033[33mDate and Time: \033[0m$(date)"
-echo -e "\033[35mKernel Version: \033[0m$(uname -r)"
-gradient_line_green "======================================================"
-echo -e "\033[34mAbout This box: \033[0mhttps://ejmedia.ca/client-lan-monitor"
-gradient_line_green "======================================================"
+# -------------------------
+# Collect System Info
+# -------------------------
+loadavg=$(cut -d " " -f1-3 /proc/loadavg)
+disk_usage=$(df -h / | awk 'NR==2 {print $5 " of " $2}')
+mem_total=$(free -m | awk '/Mem:/ {print $2}')
+mem_used=$(free -m | awk '/Mem:/ {print $3}')
+mem_percent=$((100 * mem_used / mem_total))
+swap_total=$(free -m | awk '/Swap:/ {print $2}')
+swap_used=$(free -m | awk '/Swap:/ {print $3}')
+swap_percent=0
+if [ "$swap_total" -gt 0 ]; then
+    swap_percent=$((100 * swap_used / swap_total))
+fi
+process_count=$(ps -e --no-headers | wc -l)
+user_count=$(who | wc -l)
+ipv4_addr=$(hostname -I | awk '{print $1}')
+ipv6_addr=$(ip -6 addr show scope global | grep inet6 | awk '{print $2}' | head -n1)
+
+# -------------------------
+# Print System Information
+# -------------------------
+gradient_line_green "=================== SYSTEM INFORMATION ===================="
+
+echo -e "\033[36mSystem Date: \033[0m$(date)"
+echo -e "\033[36mLoad Average: \033[0m$loadavg"
+echo -e "\033[36mDisk Usage: \033[0m$disk_usage"
+echo -e "\033[36mMemory Usage: \033[0m${mem_percent}% of ${mem_total}MB"
+echo -e "\033[36mSwap Usage: \033[0m${swap_percent}% of ${swap_total}MB"
+echo -e "\033[36mProcesses: \033[0m$process_count"
+echo -e "\033[36mUsers Logged In: \033[0m$user_count"
+echo -e "\033[36mIPv4 Address: \033[0m$ipv4_addr"
+echo -e "\033[36mIPv6 Address: \033[0m${ipv6_addr:-N/A}"
+
+gradient_line_green "==========================================================="
+echo -e "\033[34mAbout This Box: \033[0mhttps://ejmedia.ca/client-lan-monitor"
+gradient_line_green "==========================================================="
 echo ""
