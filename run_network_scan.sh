@@ -14,6 +14,22 @@ echo "EJMedia.ca Network Scan - $(date)"
 echo "Running on host: $(hostname) - IP: $(hostname -I | awk '{print $1}')"
 echo "=============================================="
 
+
+# Check if nmap is installed
+if ! command -v nmap &> /dev/null; then
+    echo ""
+    echo ">>> nmap not found. Attempting to install..."
+    sudo apt update && sudo apt install -y nmap
+
+    if ! command -v nmap &> /dev/null; then
+        echo "!!! nmap installation failed. Aborting scan."
+        exit 1
+    fi
+else
+    echo ""
+    echo ">>> nmap is installed. Proceeding with scan..."
+fi
+
 echo ""
 echo ">>> Performing pre-scan cleanup..."
 rm -f ${OUTPUT_XML} ${OUTPUT_TXT}
