@@ -1,1 +1,37 @@
+# Scan & analysis outputs
 namp-scan-*.xml
+*.gnmap
+*.nmap
+*.pcap
+*.nessus
+*.log
+*.csv
+
+
+# TEMP & Test files
+*.bak
+*.tmp
+*.swp
+*~
+*.old
+debug.log
+debug-*.*
+
+# Common Working and Output folders
+/output/
+/tmp/
+/cache/
+/.cache/
+dist/
+build/
+
+# System/IDE files
+.DS_Store
+Thumbs.db
+*.vscode/
+*.idea/
+*.sublime-workspace
+
+# Shell history
+.bash_history
+.zsh_history
