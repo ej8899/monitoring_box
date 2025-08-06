@@ -84,6 +84,12 @@ echo -e "\033[36mUsers Logged In: \033[0m$user_count"
 echo -e "\033[36mIPv4 Address: \033[0m$ipv4_addr"
 echo -e "\033[36mIPv6 Address: \033[0m${ipv6_addr:-N/A}"
 
+hostname=$(hostname)
+border="=============================="
+printf "\033[34m%s\n" "$border"
+printf "   💻  \033[36mHOSTNAME: \033[0m%s\n" "$hostname"
+printf "\033[34m%s\033[0m\n\n" "$border"
+
 gradient_line_green "==========================================================="
 echo -e "\033[34mAbout This Box: \033[0mhttps://ejmedia.ca/client-lan-monitor"
 gradient_line_green "==========================================================="
